@@ -1,0 +1,93 @@
+-- โหลด Fluent UI Library และ Addons
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+-- สร้าง Window หลัก
+local Window = Fluent:CreateWindow({
+    Title = "Humyai hub",
+    SubTitle = "Steal an egg",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+-- ตัวแปรเก็บสถานะการทำงาน (Variables)
+local Settings = {
+    AutoSteal = false,
+    SelectedArea = "Cosmic",
+    SelectedLevel = "Secret",
+    AntiAFK = false,
+    AFKGod = false
+}
+
+-- ระบบกรอบสีรุ้ง (RGB Border)
+local Stroke = Instance.new("UIStroke")
+Stroke.Thickness = 2
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Stroke.Parent = Window.UIElements.Main -- ใส่ Stroke ที่กรอบหลักของ Fluent
+
+task.spawn(function()
+    local hue = 0
+    while true do
+        hue = (hue + 0.005) % 1
+        Stroke.Color = Color3.fromHSV(hue, 1, 1)
+        task.wait(0.03)
+    end
+end)
+
+-- สร้าง Tabs
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "rbxassetid://4483345998" })
+}
+
+-- -------------------------------------------------------------
+-- UI Elements (องค์ประกอบหน้าเมนู)
+-- -------------------------------------------------------------
+
+-- 1. Auto steal Egg
+local ToggleAutoSteal = Tabs.Main:AddToggle("AutoSteal", { Title = "Auto steal Egg", Default = false })
+ToggleAutoSteal:OnChanged(function(Value)
+    Settings.AutoSteal = Value
+end)
+
+-- 2. Steal Area?
+local DropdownArea = Tabs.Main:AddDropdown("StealArea", {
+    Title = "Steal Area?",
+    Values = {"Spawn", "Cosmic", "Galaxy", "Void"},
+    Default = "Cosmic",
+})
+DropdownArea:OnChanged(function(Value)
+    Settings.SelectedArea = Value
+end)
+
+-- 3. Steal level ?
+local DropdownLevel = Tabs.Main:AddDropdown("StealLevel", {
+    Title = "Steal level ?",
+    Values = {"Common", "Rare", "Epic", "Legendary", "Mythic", "Secret"},
+    Default = "Secret",
+})
+DropdownLevel:OnChanged(function(Value)
+    Settings.SelectedLevel = Value
+end)
+
+-- 4. Anti AFK
+local ToggleAntiAFK = Tabs.Main:AddToggle("AntiAFK", { Title = "Anti AFK", Default = false })
+ToggleAntiAFK:OnChanged(function(Value)
+    Settings.AntiAFK = Value
+end)
+
+-- 5. AFK god -> auto steal egg , auto farm
+local ToggleAFKGod = Tabs.Main:AddToggle("AFKGod", { Title = "AFK god (Auto Steal + Auto Farm)", Default = false })
+ToggleAFKGod:OnChanged(function(Value)
+    Settings.AFKGod = Value
+    if Value then
+        ToggleAutoSteal:SetValue(true)
+        ToggleAntiAFK:SetValue(true)
+    end
+end)
+
+-- -------------------------------------------------------------
+--
